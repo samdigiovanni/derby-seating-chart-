@@ -426,6 +426,7 @@ function renderTable() {
       className,
       guest ? "filled" : "",
       seat?.locked ? "locked" : "",
+      activeGuestEditorId === guest?.id ? "editing" : "",
       conflictedSeats.has(seatNumber) ? "conflict" : "",
     ]
       .filter(Boolean)

@@ -247,6 +247,7 @@ h2 {
     background 140ms ease,
     border-color 140ms ease,
     box-shadow 140ms ease;
+  overflow: visible;
 }
 
 .seat.locked {
@@ -260,6 +261,10 @@ h2 {
     inset 0 0 0 1px rgba(190, 86, 58, 0.1),
     0 0 0 3px rgba(189, 85, 58, 0.28);
   border-color: rgba(189, 85, 58, 0.44) !important;
+}
+
+.seat.editing {
+  z-index: 30;
 }
 
 .seat::before {
@@ -610,10 +615,19 @@ h2 {
 }
 
 .inline-editor {
-  width: 100%;
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  right: 42px;
   display: grid;
   gap: 8px;
   cursor: default;
+  padding: 10px;
+  border-radius: 16px;
+  background: rgba(255, 250, 243, 0.98);
+  border: 1px solid rgba(94, 71, 44, 0.14);
+  box-shadow: 0 18px 32px rgba(76, 50, 23, 0.18);
+  z-index: 40;
 }
 
 .inline-editor input {
