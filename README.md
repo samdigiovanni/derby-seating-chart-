@@ -13,9 +13,9 @@ Best fit:
 - Any plain static web host
 
 About Google Apps Script:
-- You could host it as an Apps Script web app, but that is usually more work than necessary for this project.
-- Apps Script only really makes sense if you want to connect this directly to Google Sheets, Google Drive, or another Google Workspace workflow.
-- For the current drag-and-drop planner, standard static hosting is the cleaner option.
+- If you want a shared team version backed by Google Sheets, use the files in `apps-script/`.
+- That version is designed for Google Workspace teams who want everyone to see the same saved seating plan.
+- The GitHub Pages version is still useful as a standalone browser-only copy.
 
 ## Features
 
@@ -54,10 +54,19 @@ Then visit `http://localhost:8000`.
 2. Push the folder contents to the repo root.
 3. Push to the `main` branch.
 4. In GitHub, open `Settings` -> `Pages`.
-5. Set the source to `GitHub Actions`.
-6. The included workflow in `.github/workflows/deploy-pages.yml` will publish the site automatically.
+5. Set the source to `Deploy from a branch`.
+6. Choose `main` and `/ (root)`.
 
 The included `.nojekyll` file helps GitHub Pages serve the project as a plain static site.
+
+### Google Workspace Shared Version
+
+If you want coworkers to see the same saved table plan, use the Apps Script bundle in [apps-script/README.md](/Users/samdigiovanni/Desktop/Derby%20Studio%20Preview%20Seating%20Chart/apps-script/README.md).
+
+That setup:
+- serves the app as an Apps Script web app
+- stores guests, seats, and rules in a shared Google Sheet
+- uses the same frontend UI, but with shared Google Workspace persistence
 
 ### Netlify or Vercel
 

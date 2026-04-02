@@ -97,6 +97,31 @@ h2 {
   line-height: 1.6;
 }
 
+.storage-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 0.5rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  color: var(--muted);
+  background: rgba(255, 250, 243, 0.72);
+  border: 1px solid rgba(94, 71, 44, 0.12);
+}
+
+.storage-status[data-tone="success"] {
+  color: var(--success);
+  border-color: rgba(53, 104, 79, 0.18);
+  background: rgba(101, 157, 124, 0.1);
+}
+
+.storage-status[data-tone="warning"] {
+  color: #8d4b28;
+  border-color: rgba(187, 108, 63, 0.18);
+  background: rgba(236, 191, 146, 0.16);
+}
+
 .hero-actions {
   display: flex;
   gap: 12px;

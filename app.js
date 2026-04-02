@@ -28,6 +28,7 @@ const seatSummary = document.getElementById("seat-summary");
 const guestSummary = document.getElementById("guest-summary");
 const legendSummary = document.getElementById("legend-summary");
 const ruleSummary = document.getElementById("rule-summary");
+const storageStatus = document.getElementById("storage-status");
 const tableMap = document.getElementById("table-map");
 const guestList = document.getElementById("guest-list");
 const guestForm = document.getElementById("guest-form");
@@ -68,6 +69,13 @@ let activeGuestEditorId = null;
 let draggedGuestId = null;
 let undoStack = [];
 let redoStack = [];
+let sharedSaveTimeoutId = null;
+let isHydratingSharedState = false;
+let hasHydratedSharedState = false;
+const isAppsScriptEnvironment =
+  typeof google !== "undefined" &&
+  typeof google.script !== "undefined" &&
+  typeof google.script.run !== "undefined";
 
 function clonePlannerState(sourceState = state) {
   return structuredClone(sourceState);
@@ -157,6 +165,7 @@ function normalizeState(rawState) {
 
 function saveState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  scheduleSharedSave();
 }
 
 function createGuest(name, group = "") {
@@ -202,6 +211,105 @@ function updateGuest(guestId, name, group) {
     guest.group = group.trim();
     activeGuestEditorId = null;
   });
+}
+
+function updateStorageStatus(message, tone = "neutral") {
+  if (!storageStatus) {
+    return;
+  }
+
+  storageStatus.textContent = message;
+  storageStatus.dataset.tone = tone;
+}
+
+function formatSavedTimestamp(timestamp) {
+  if (!timestamp) {
+    return "";
+  }
+
+  const date = new Date(timestamp);
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  return date.toLocaleString([], {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
+function runAppsScript(functionName, ...args) {
+  return new Promise((resolve, reject) => {
+    google.script.run
+      .withSuccessHandler(resolve)
+      .withFailureHandler(reject)
+      [functionName](...args);
+  });
+}
+
+async function hydrateSharedState() {
+  if (!isAppsScriptEnvironment) {
+    updateStorageStatus("Saved in this browser only.", "neutral");
+    return;
+  }
+
+  try {
+    isHydratingSharedState = true;
+    updateStorageStatus("Loading shared seating plan from Google Sheets...", "neutral");
+    const response = await runAppsScript("getSharedPlan");
+    state = normalizeState(response.plan ?? response);
+    undoStack = [];
+    redoStack = [];
+    activeGuestEditorId = null;
+    hasHydratedSharedState = true;
+    render();
+    const savedLabel = formatSavedTimestamp(response.savedAt);
+    updateStorageStatus(
+      savedLabel
+        ? `Shared Google Sheet connected. Last saved ${savedLabel}.`
+        : "Shared Google Sheet connected.",
+      "success",
+    );
+  } catch (error) {
+    console.error("Unable to load the shared seating plan.", error);
+    hasHydratedSharedState = false;
+    updateStorageStatus("Shared sheet unavailable. Using this browser copy only.", "warning");
+    render();
+  } finally {
+    isHydratingSharedState = false;
+  }
+}
+
+function scheduleSharedSave() {
+  if (!isAppsScriptEnvironment || !hasHydratedSharedState || isHydratingSharedState) {
+    return;
+  }
+
+  if (sharedSaveTimeoutId) {
+    window.clearTimeout(sharedSaveTimeoutId);
+  }
+
+  updateStorageStatus("Saving to the shared Google Sheet...", "neutral");
+  sharedSaveTimeoutId = window.setTimeout(async () => {
+    try {
+      const response = await runAppsScript("saveSharedPlan", clonePlannerState());
+      const savedLabel = formatSavedTimestamp(response.savedAt);
+      updateStorageStatus(
+        savedLabel
+          ? `Shared Google Sheet synced. Saved ${savedLabel}.`
+          : "Shared Google Sheet synced.",
+        "success",
+      );
+    } catch (error) {
+      console.error("Unable to save the shared seating plan.", error);
+      updateStorageStatus(
+        "Could not save to Google Sheets. Your browser copy is still preserved locally.",
+        "warning",
+      );
+    }
+  }, 600);
 }
 
 function getGuestById(guestId) {
@@ -406,6 +514,15 @@ function render() {
 function updateHistoryButtons() {
   undoButton.disabled = undoStack.length === 0;
   redoButton.disabled = redoStack.length === 0;
+}
+
+function initializeApp() {
+  render();
+  if (isAppsScriptEnvironment) {
+    hydrateSharedState();
+  } else {
+    updateStorageStatus("Saved in this browser only.", "neutral");
+  }
 }
 
 function renderTable() {
@@ -1178,4 +1295,4 @@ printButton.addEventListener("click", () => {
   window.print();
 });
 
-render();
+initializeApp();
