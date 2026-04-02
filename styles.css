@@ -688,6 +688,95 @@ h2 {
   }
 }
 
+@media (min-width: 1101px) {
+  .page-shell {
+    min-height: 100vh;
+    padding-top: 18px;
+    padding-bottom: 20px;
+  }
+
+  .hero {
+    gap: 18px;
+    margin-bottom: 14px;
+  }
+
+  .eyebrow,
+  .panel-label {
+    margin-bottom: 6px;
+    font-size: 0.68rem;
+  }
+
+  h1 {
+    font-size: clamp(2.2rem, 4vw, 3.8rem);
+  }
+
+  .intro {
+    margin-top: 8px;
+    font-size: 0.96rem;
+    line-height: 1.45;
+    max-width: 560px;
+  }
+
+  .hero-actions {
+    gap: 8px;
+  }
+
+  .primary-button,
+  .ghost-button {
+    padding: 0.72rem 1rem;
+    font-size: 0.92rem;
+  }
+
+  .layout {
+    align-items: start;
+  }
+
+  .table-panel,
+  .list-panel {
+    max-height: calc(100vh - 150px);
+  }
+
+  .panel-header {
+    margin-bottom: 12px;
+  }
+
+  .table-panel {
+    display: flex;
+    flex-direction: column;
+    padding: 18px;
+  }
+
+  .list-panel {
+    overflow: auto;
+    padding: 16px;
+  }
+
+  .table-stage {
+    flex: 1;
+    min-height: 0;
+    padding-top: 8px;
+  }
+
+  .table-map {
+    height: calc(100vh - 250px);
+    max-height: 820px;
+    grid-template-rows: repeat(16, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .seat,
+  .seat.side-left,
+  .seat.side-right {
+    min-height: 0;
+    height: 100%;
+  }
+
+  .seat-name,
+  .guest-chip {
+    padding: 8px 10px;
+  }
+}
+
 @media (max-width: 720px) {
   .page-shell {
     padding-inline: 16px;
