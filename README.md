@@ -52,10 +52,10 @@ Then visit `http://localhost:8000`.
 
 1. Create a GitHub repo and add these files.
 2. Push the folder contents to the repo root.
-3. In GitHub, open `Settings` -> `Pages`.
-4. Set the source to `Deploy from a branch`.
-5. Choose your main branch and `/ (root)`.
-6. Save, then wait for GitHub Pages to publish the site.
+3. Push to the `main` branch.
+4. In GitHub, open `Settings` -> `Pages`.
+5. Set the source to `GitHub Actions`.
+6. The included workflow in `.github/workflows/deploy-pages.yml` will publish the site automatically.
 
 The included `.nojekyll` file helps GitHub Pages serve the project as a plain static site.
 
