@@ -19,7 +19,7 @@ const SVG_LAYOUT = {
   tableY: 110,
   tableWidth: 500,
   tableHeight: 1100,
-  seatWidth: 170,
+  seatWidth: 220,
   seatHeight: 56,
   rowStep: 64,
 };
