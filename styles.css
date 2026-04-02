@@ -48,7 +48,7 @@ code {
 .page-shell {
   max-width: 1680px;
   margin: 0 auto;
-  padding: 32px 32px 48px;
+  padding: 28px 24px 44px;
 }
 
 .hero {
@@ -159,8 +159,8 @@ h2 {
 
 .layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(460px, 540px);
-  gap: 28px;
+  grid-template-columns: minmax(0, 1.75fr) minmax(360px, 430px);
+  gap: 20px;
 }
 
 .table-panel,
@@ -173,11 +173,11 @@ h2 {
 }
 
 .table-panel {
-  padding: 28px;
+  padding: 22px;
 }
 
 .list-panel {
-  padding: 24px;
+  padding: 20px;
   position: sticky;
   top: 24px;
 }
@@ -196,16 +196,17 @@ h2 {
 }
 
 .table-stage {
-  overflow: auto;
-  padding: 18px 8px 8px;
+  overflow: visible;
+  padding: 14px 0 0;
 }
 
 .table-map {
-  min-width: 1120px;
+  min-width: 0;
+  width: 100%;
   display: grid;
-  grid-template-columns: 230px minmax(440px, 1fr) 230px;
+  grid-template-columns: minmax(150px, 1fr) minmax(280px, 1.55fr) minmax(150px, 1fr);
   grid-template-rows: repeat(16, 72px);
-  gap: 14px;
+  gap: 10px;
   align-items: center;
   position: relative;
 }
@@ -279,7 +280,7 @@ h2 {
 
 .seat.side-left,
 .seat.side-right {
-  min-height: 68px;
+  min-height: 64px;
 }
 
 .seat.filled {
@@ -298,7 +299,7 @@ h2 {
 .guest-chip {
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.62);
-  padding: 10px 12px;
+  padding: 9px 10px;
   width: 100%;
 }
 
