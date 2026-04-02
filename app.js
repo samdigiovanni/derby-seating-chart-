@@ -65,6 +65,7 @@ const defaultState = {
 
 let state = loadState();
 let activeGuestEditorId = null;
+let draggedGuestId = null;
 let undoStack = [];
 let redoStack = [];
 
@@ -708,12 +709,14 @@ function updateSummaries() {
 
 function setupDraggableGuest(element, guestId) {
   element.addEventListener("dragstart", (event) => {
+    draggedGuestId = guestId;
     event.dataTransfer.setData("text/plain", guestId);
     event.dataTransfer.effectAllowed = "move";
     element.classList.add("dragging");
   });
 
   element.addEventListener("dragend", () => {
+    draggedGuestId = null;
     element.classList.remove("dragging");
     clearDropHighlights();
   });
@@ -721,7 +724,7 @@ function setupDraggableGuest(element, guestId) {
 
 function setupSeatDropTarget(element, seatNumber) {
   element.addEventListener("dragover", (event) => {
-    const guestId = event.dataTransfer.getData("text/plain");
+    const guestId = draggedGuestId;
     if (!canAssignGuestToSeat(guestId, seatNumber)) {
       return;
     }
@@ -735,7 +738,7 @@ function setupSeatDropTarget(element, seatNumber) {
   });
 
   element.addEventListener("drop", (event) => {
-    const guestId = event.dataTransfer.getData("text/plain");
+    const guestId = draggedGuestId ?? event.dataTransfer.getData("text/plain");
     if (!canAssignGuestToSeat(guestId, seatNumber)) {
       return;
     }
@@ -1090,7 +1093,7 @@ addBulkButton.addEventListener("click", () => {
 });
 
 unseatedDropzone.addEventListener("dragover", (event) => {
-  const guestId = event.dataTransfer.getData("text/plain");
+  const guestId = draggedGuestId;
   const currentSeatNumber = getAssignedSeatNumber(guestId);
   const currentSeat = currentSeatNumber ? getSeatByNumber(currentSeatNumber) : null;
   if (currentSeat?.locked) {
@@ -1107,7 +1110,7 @@ unseatedDropzone.addEventListener("dragleave", () => {
 });
 
 unseatedDropzone.addEventListener("drop", (event) => {
-  const guestId = event.dataTransfer.getData("text/plain");
+  const guestId = draggedGuestId ?? event.dataTransfer.getData("text/plain");
   const currentSeatNumber = getAssignedSeatNumber(guestId);
   const currentSeat = currentSeatNumber ? getSeatByNumber(currentSeatNumber) : null;
   if (currentSeat?.locked) {
