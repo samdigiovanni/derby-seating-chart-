@@ -77,6 +77,15 @@ const isAppsScriptEnvironment =
   typeof google.script !== "undefined" &&
   typeof google.script.run !== "undefined";
 
+function updateViewportFitMode() {
+  const shouldUseViewportFit =
+    !isAppsScriptEnvironment &&
+    window.innerWidth >= 1101 &&
+    window.innerHeight >= 860;
+
+  document.body.classList.toggle("viewport-fit", shouldUseViewportFit);
+}
+
 function clonePlannerState(sourceState = state) {
   return structuredClone(sourceState);
 }
@@ -1295,4 +1304,7 @@ printButton.addEventListener("click", () => {
   window.print();
 });
 
+window.addEventListener("resize", updateViewportFitMode);
+
+updateViewportFitMode();
 initializeApp();
