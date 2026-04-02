@@ -1,0 +1,17 @@
+{
+  "name": "Derby Studio Seating Chart",
+  "short_name": "Seating Chart",
+  "description": "Drag-and-drop seating planner for a 32-person rectangular table.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f4efe6",
+  "theme_color": "#bb6c3f",
+  "icons": [
+    {
+      "src": "./favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

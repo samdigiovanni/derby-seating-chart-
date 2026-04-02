@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Derby Studio Seating Chart</title>
+    <meta
+      name="description"
+      content="Arrange 32 guests around a long table with drag-and-drop seating, groups, locks, and relationship rules."
+    />
+    <meta name="theme-color" content="#bb6c3f" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="manifest" href="./site.webmanifest" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Derby Studio Preview</p>
+          <h1>32-Seat Table Planner</h1>
+          <p class="intro">
+            Add guest names, then drag people into seats around the long table to test
+            different arrangements.
+          </p>
+        </div>
+        <div class="hero-actions">
+          <button id="undo-button" class="ghost-button" type="button">
+            Undo
+          </button>
+          <button id="redo-button" class="ghost-button" type="button">
+            Redo
+          </button>
+          <button id="export-button" class="ghost-button" type="button">
+            Export Plan
+          </button>
+          <button id="export-svg-button" class="ghost-button" type="button">
+            Download SVG
+          </button>
+          <label class="ghost-button file-button" for="import-file-input">
+            Import Plan
+          </label>
+          <input id="import-file-input" type="file" accept="application/json" hidden />
+          <button id="print-button" class="ghost-button" type="button">
+            Print Layout
+          </button>
+          <button id="clear-seats-button" class="ghost-button" type="button">
+            Clear Seats
+          </button>
+          <button id="reset-all-button" class="primary-button" type="button">
+            Reset Everything
+          </button>
+        </div>
+      </header>
+
+      <main class="layout">
+        <section class="table-panel">
+          <div class="panel-header">
+            <div>
+              <p class="panel-label">Table Preview</p>
+              <h2>Drag guests into any seat</h2>
+            </div>
+            <div class="table-tools">
+              <button id="auto-arrange-button" class="ghost-button tool-button" type="button">
+                Auto-Arrange Groups
+              </button>
+              <p id="seat-summary" class="panel-meta"></p>
+            </div>
+          </div>
+
+          <div class="table-stage">
+            <div id="table-map" class="table-map" aria-label="32 person table seating chart"></div>
+          </div>
+        </section>
+
+        <aside class="sidebar">
+          <section class="list-panel">
+            <div class="panel-header">
+              <div>
+                <p class="panel-label">Guest List</p>
+                <h2>Available guests</h2>
+              </div>
+              <p id="guest-summary" class="panel-meta"></p>
+            </div>
+
+            <form id="guest-form" class="guest-form">
+              <label class="sr-only" for="guest-name-input">Guest name</label>
+              <input
+                id="guest-name-input"
+                name="guest-name"
+                type="text"
+                maxlength="60"
+                placeholder="Type a guest name"
+                autocomplete="off"
+              />
+              <label class="sr-only" for="guest-group-input">Guest group</label>
+              <input
+                id="guest-group-input"
+                name="guest-group"
+                type="text"
+                maxlength="40"
+                placeholder="Group or party"
+                autocomplete="off"
+              />
+              <button class="primary-button" type="submit">Add Guest</button>
+            </form>
+
+            <div class="bulk-entry">
+              <label for="bulk-names-input">Paste multiple names</label>
+              <p class="bulk-hint">
+                Use <code>Name, Group</code> on each line if you want guests color-coded by party.
+              </p>
+              <textarea
+                id="bulk-names-input"
+                rows="6"
+                placeholder="One name per line or Name, Group"
+              ></textarea>
+              <button id="add-bulk-button" class="ghost-button" type="button">
+                Add Pasted Names
+              </button>
+            </div>
+
+            <div class="legend-panel">
+              <div class="legend-header">
+                <span>Groups</span>
+                <span id="legend-summary"></span>
+              </div>
+              <div id="group-legend" class="group-legend"></div>
+            </div>
+
+            <section class="rules-panel">
+              <div class="legend-header">
+                <span>Relationship Rules</span>
+                <span id="rule-summary"></span>
+              </div>
+
+              <form id="rule-form" class="rule-form">
+                <label class="sr-only" for="rule-guest-a">First guest</label>
+                <select id="rule-guest-a"></select>
+                <label class="sr-only" for="rule-type">Rule type</label>
+                <select id="rule-type">
+                  <option value="together">Seat together</option>
+                  <option value="apart">Keep apart</option>
+                </select>
+                <label class="sr-only" for="rule-guest-b">Second guest</label>
+                <select id="rule-guest-b"></select>
+                <button class="ghost-button" type="submit">Add Rule</button>
+              </form>
+
+              <div id="rule-status" class="rule-status"></div>
+              <div id="rule-list" class="rule-list"></div>
+            </section>
+
+            <div
+              id="unseated-dropzone"
+              class="unseated-dropzone"
+              aria-label="Unseated guests area"
+            >
+              <div id="guest-list" class="guest-list"></div>
+            </div>
+          </section>
+        </aside>
+      </main>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
