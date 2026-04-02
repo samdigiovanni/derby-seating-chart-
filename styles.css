@@ -204,7 +204,7 @@ h2 {
   min-width: 920px;
   display: grid;
   grid-template-columns: 120px minmax(520px, 1fr) 120px;
-  grid-template-rows: 104px repeat(15, 72px) 104px;
+  grid-template-rows: repeat(16, 72px);
   gap: 12px;
   align-items: center;
   position: relative;
@@ -212,7 +212,7 @@ h2 {
 
 .table-surface {
   grid-column: 2;
-  grid-row: 2 / 17;
+  grid-row: 1 / 17;
   background: var(--table-top);
   border-radius: 44px;
   box-shadow:
@@ -275,10 +275,6 @@ h2 {
 .seat.side-left,
 .seat.side-right {
   min-height: 64px;
-}
-
-.seat.end {
-  min-height: 92px;
 }
 
 .seat.filled {

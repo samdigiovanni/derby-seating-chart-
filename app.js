@@ -16,13 +16,11 @@ const SVG_LAYOUT = {
   width: 1000,
   height: 1320,
   tableX: 250,
-  tableY: 140,
+  tableY: 110,
   tableWidth: 500,
-  tableHeight: 1040,
+  tableHeight: 1100,
   seatWidth: 170,
   seatHeight: 56,
-  endSeatWidth: 240,
-  endSeatHeight: 78,
   rowStep: 64,
 };
 
@@ -263,28 +261,19 @@ function escapeXml(value) {
 }
 
 function getPerimeterSeatOrder() {
-  return [
-    1,
-    ...Array.from({ length: 15 }, (_, index) => 17 + index),
-    32,
-    ...Array.from({ length: 15 }, (_, index) => 16 - index),
-  ];
+  return [...Array.from({ length: 16 }, (_, index) => index + 1), ...Array.from({ length: 16 }, (_, index) => 17 + index)];
 }
 
 function areSeatsAdjacent(firstSeatNumber, secondSeatNumber) {
   if (!firstSeatNumber || !secondSeatNumber) {
     return false;
   }
-
-  const order = getPerimeterSeatOrder();
-  const firstIndex = order.indexOf(firstSeatNumber);
-  const secondIndex = order.indexOf(secondSeatNumber);
-  if (firstIndex < 0 || secondIndex < 0) {
+  const bothLeft = firstSeatNumber <= 16 && secondSeatNumber <= 16;
+  const bothRight = firstSeatNumber >= 17 && secondSeatNumber >= 17;
+  if (!bothLeft && !bothRight) {
     return false;
   }
-
-  const difference = Math.abs(firstIndex - secondIndex);
-  return difference === 1 || difference === order.length - 1;
+  return Math.abs(firstSeatNumber - secondSeatNumber) === 1;
 }
 
 function getRuleEvaluation(rule) {
@@ -511,23 +500,20 @@ function renderTable() {
 }
 
 function buildSeatLayout() {
-  const layouts = [
-    { seatNumber: 1, className: "end", gridColumn: "2", gridRow: "1" },
-    { seatNumber: 32, className: "end", gridColumn: "2", gridRow: "17" },
-  ];
+  const layouts = [];
 
-  for (let index = 0; index < 15; index += 1) {
+  for (let index = 0; index < 16; index += 1) {
     layouts.push({
-      seatNumber: 2 + index,
+      seatNumber: 1 + index,
       className: "side-left",
       gridColumn: "1",
-      gridRow: String(index + 2),
+      gridRow: String(index + 1),
     });
     layouts.push({
       seatNumber: 17 + index,
       className: "side-right",
       gridColumn: "3",
-      gridRow: String(index + 2),
+      gridRow: String(index + 1),
     });
   }
 
@@ -940,18 +926,10 @@ function exportPlan() {
 
 function buildSvgSeatLayout() {
   const layouts = [];
-  layouts.push({
-    seatNumber: 1,
-    x: SVG_LAYOUT.tableX + (SVG_LAYOUT.tableWidth - SVG_LAYOUT.endSeatWidth) / 2,
-    y: 36,
-    width: SVG_LAYOUT.endSeatWidth,
-    height: SVG_LAYOUT.endSeatHeight,
-  });
-
-  for (let index = 0; index < 15; index += 1) {
+  for (let index = 0; index < 16; index += 1) {
     const y = SVG_LAYOUT.tableY + 16 + index * SVG_LAYOUT.rowStep;
     layouts.push({
-      seatNumber: 2 + index,
+      seatNumber: 1 + index,
       x: 42,
       y,
       width: SVG_LAYOUT.seatWidth,
@@ -965,14 +943,6 @@ function buildSvgSeatLayout() {
       height: SVG_LAYOUT.seatHeight,
     });
   }
-
-  layouts.push({
-    seatNumber: 32,
-    x: SVG_LAYOUT.tableX + (SVG_LAYOUT.tableWidth - SVG_LAYOUT.endSeatWidth) / 2,
-    y: SVG_LAYOUT.height - 114,
-    width: SVG_LAYOUT.endSeatWidth,
-    height: SVG_LAYOUT.endSeatHeight,
-  });
 
   return layouts.sort((a, b) => a.seatNumber - b.seatNumber);
 }
