@@ -229,7 +229,7 @@ h2 {
   width: 100%;
   display: grid;
   grid-template-columns: 78px repeat(17, minmax(0, 1fr)) 78px;
-  grid-template-rows: 74px minmax(84px, 112px) minmax(84px, 112px) 74px;
+  grid-template-rows: 88px minmax(84px, 112px) minmax(84px, 112px) 88px;
   gap: 12px 10px;
   align-items: center;
   position: relative;
@@ -306,7 +306,15 @@ h2 {
 .seat.side-bottom,
 .seat.end-left,
 .seat.end-right {
-  min-height: 64px;
+  min-height: 72px;
+}
+
+.seat.side-top.seat-staggered {
+  transform: translateY(-10px);
+}
+
+.seat.side-bottom.seat-staggered {
+  transform: translateY(10px);
 }
 
 .seat.filled {
@@ -864,7 +872,7 @@ h2 {
   body.viewport-fit .table-map {
     height: auto;
     max-height: none;
-    grid-template-rows: 68px minmax(76px, 100px) minmax(76px, 100px) 68px;
+    grid-template-rows: 78px minmax(76px, 100px) minmax(76px, 100px) 78px;
     gap: 10px 8px;
   }
 

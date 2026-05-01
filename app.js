@@ -647,7 +647,7 @@ function buildSeatLayout() {
   for (let index = 0; index < LONG_SIDE_SEAT_COUNT; index += 1) {
     layouts.push({
       seatNumber: 1 + index,
-      className: "side-top",
+      className: `side-top ${index % 2 === 1 ? "seat-staggered" : ""}`.trim(),
       gridColumn: String(index + 2),
       gridRow: "1",
     });
@@ -671,7 +671,7 @@ function buildSeatLayout() {
   for (let index = 0; index < LONG_SIDE_SEAT_COUNT; index += 1) {
     layouts.push({
       seatNumber: 20 + index,
-      className: "side-bottom",
+      className: `side-bottom ${index % 2 === 1 ? "seat-staggered" : ""}`.trim(),
       gridColumn: String(18 - index),
       gridRow: "4",
     });
@@ -1108,7 +1108,7 @@ function buildSvgSeatLayout() {
     layouts.push({
       seatNumber: 1 + index,
       x,
-      y: 162,
+      y: index % 2 === 1 ? 148 : 166,
       width: SVG_LAYOUT.seatWidth,
       height: SVG_LAYOUT.seatHeight,
     });
@@ -1136,7 +1136,10 @@ function buildSvgSeatLayout() {
     layouts.push({
       seatNumber: 20 + index,
       x,
-      y: SVG_LAYOUT.tableY + SVG_LAYOUT.tableHeight + 84,
+      y:
+        SVG_LAYOUT.tableY +
+        SVG_LAYOUT.tableHeight +
+        (index % 2 === 1 ? 98 : 80),
       width: SVG_LAYOUT.seatWidth,
       height: SVG_LAYOUT.seatHeight,
     });
