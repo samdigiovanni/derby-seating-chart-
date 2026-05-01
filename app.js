@@ -27,6 +27,7 @@ const SVG_LAYOUT = {
 };
 
 const seatSummary = document.getElementById("seat-summary");
+const selectedSeatSummary = document.getElementById("selected-seat-summary");
 const guestSummary = document.getElementById("guest-summary");
 const legendSummary = document.getElementById("legend-summary");
 const ruleSummary = document.getElementById("rule-summary");
@@ -55,6 +56,7 @@ const exportSvgButton = document.getElementById("export-svg-button");
 const autoArrangeButton = document.getElementById("auto-arrange-button");
 const importFileInput = document.getElementById("import-file-input");
 const printButton = document.getElementById("print-button");
+const toggleLockButton = document.getElementById("toggle-lock-button");
 
 const defaultState = {
   guests: [],
@@ -68,6 +70,7 @@ const defaultState = {
 
 let state = loadState();
 let activeGuestEditorId = null;
+let selectedSeatNumber = null;
 let draggedGuestId = null;
 let undoStack = [];
 let redoStack = [];
@@ -96,12 +99,14 @@ function snapshotHistoryEntry() {
   return {
     state: clonePlannerState(),
     activeGuestEditorId,
+    selectedSeatNumber,
   };
 }
 
 function restoreHistoryEntry(entry) {
   state = clonePlannerState(entry.state);
   activeGuestEditorId = entry.activeGuestEditorId ?? null;
+  selectedSeatNumber = entry.selectedSeatNumber ?? null;
 }
 
 function commitStateChange(mutator) {
@@ -528,6 +533,7 @@ function render() {
   renderLegend();
   renderRules();
   updateSummaries();
+  updateSeatLockControls();
   updateHistoryButtons();
   saveState();
 }
@@ -564,6 +570,7 @@ function renderTable() {
       className,
       guest ? "filled" : "",
       seat?.locked ? "locked" : "",
+      selectedSeatNumber === seatNumber ? "selected" : "",
       activeGuestEditorId === guest?.id ? "editing" : "",
       conflictedSeats.has(seatNumber) ? "conflict" : "",
     ]
@@ -572,6 +579,10 @@ function renderTable() {
     seatElement.dataset.seatNumber = String(seatNumber);
     seatElement.style.gridColumn = gridColumn;
     seatElement.style.gridRow = gridRow;
+    seatElement.addEventListener("click", () => {
+      selectedSeatNumber = selectedSeatNumber === seatNumber ? null : seatNumber;
+      render();
+    });
 
     if (guest?.group) {
       const groupColor = getGroupColor(guest.group);
@@ -580,21 +591,6 @@ function renderTable() {
     }
 
     setupSeatDropTarget(seatElement, seatNumber);
-
-    const lockButton = document.createElement("button");
-    lockButton.type = "button";
-    lockButton.className = `seat-lock ${seat?.locked ? "is-locked" : ""}`.trim();
-    lockButton.textContent = seat?.locked ? "🔒" : "🔓";
-    lockButton.setAttribute(
-      "aria-label",
-      seat?.locked ? `Unlock seat ${seatNumber}` : `Lock seat ${seatNumber}`,
-    );
-    lockButton.title = seat?.locked ? "Unlock seat" : "Lock seat";
-    lockButton.addEventListener("click", (event) => {
-      event.stopPropagation();
-      toggleSeatLock(seatNumber);
-    });
-    seatElement.appendChild(lockButton);
 
     if (guest) {
       if (activeGuestEditorId === guest.id) {
@@ -879,6 +875,26 @@ function updateSummaries() {
 
   const unseatedCount = state.guests.filter((guest) => getAssignedSeatNumber(guest.id) === null).length;
   guestSummary.textContent = `${state.guests.length} total guests, ${unseatedCount} unseated`;
+}
+
+function updateSeatLockControls() {
+  if (!toggleLockButton || !selectedSeatSummary) {
+    return;
+  }
+
+  const seat = selectedSeatNumber ? getSeatByNumber(selectedSeatNumber) : null;
+  if (!seat) {
+    selectedSeatSummary.textContent = "Select a seat to manage its lock.";
+    toggleLockButton.textContent = "Lock Seat";
+    toggleLockButton.disabled = true;
+    return;
+  }
+
+  selectedSeatSummary.textContent = `Seat ${selectedSeatNumber} selected. ${
+    seat.locked ? "Locked." : "Unlocked."
+  }`;
+  toggleLockButton.textContent = seat.locked ? "Unlock Seat" : "Lock Seat";
+  toggleLockButton.disabled = false;
 }
 
 function setupDraggableGuest(element, guestId) {
@@ -1390,6 +1406,12 @@ importFileInput.addEventListener("change", (event) => {
 
 printButton.addEventListener("click", () => {
   window.print();
+});
+
+toggleLockButton?.addEventListener("click", () => {
+  if (selectedSeatNumber) {
+    toggleSeatLock(selectedSeatNumber);
+  }
 });
 
 window.addEventListener("resize", updateViewportFitMode);
