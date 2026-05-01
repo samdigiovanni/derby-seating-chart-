@@ -540,18 +540,7 @@ function renderTable() {
           setupDraggableGuest(guestCard, guest.id);
         }
 
-        const editButton = document.createElement("button");
-        editButton.type = "button";
-        editButton.className = "seat-edit-button";
-        editButton.textContent = "✎";
-        editButton.setAttribute("aria-label", `Edit ${guest.name}`);
-        editButton.title = `Edit ${guest.name}`;
-        editButton.addEventListener("click", (event) => {
-          event.stopPropagation();
-          startEditingGuest(guest.id);
-        });
-
-        seatCard.append(guestCard, editButton);
+        seatCard.append(guestCard);
         seatElement.appendChild(seatCard);
       }
     } else {
