@@ -229,16 +229,16 @@ h2 {
   min-width: 0;
   width: 100%;
   display: grid;
-  grid-template-columns: repeat(16, minmax(0, 1fr));
-  grid-template-rows: 74px minmax(180px, 240px) 74px;
+  grid-template-columns: 78px repeat(17, minmax(0, 1fr)) 78px;
+  grid-template-rows: 74px minmax(84px, 112px) minmax(84px, 112px) 74px;
   gap: 12px 10px;
   align-items: center;
   position: relative;
 }
 
 .table-surface {
-  grid-column: 1 / -1;
-  grid-row: 2;
+  grid-column: 2 / 19;
+  grid-row: 2 / 4;
   background: var(--table-top);
   border-radius: 44px;
   box-shadow:
@@ -304,7 +304,9 @@ h2 {
 }
 
 .seat.side-top,
-.seat.side-bottom {
+.seat.side-bottom,
+.seat.end-left,
+.seat.end-right {
   min-height: 64px;
 }
 
@@ -671,6 +673,11 @@ h2 {
   bottom: 6px;
 }
 
+.seat.end-right .inline-editor {
+  left: auto;
+  right: 6px;
+}
+
 .inline-editor input {
   width: 100%;
   border: 1px solid var(--line);
@@ -726,7 +733,7 @@ h2 {
   }
 
   .table-map {
-    min-width: 1180px;
+    min-width: 1380px;
   }
 }
 
@@ -812,13 +819,15 @@ h2 {
   body.viewport-fit .table-map {
     height: auto;
     max-height: none;
-    grid-template-rows: 68px minmax(150px, 210px) 68px;
+    grid-template-rows: 68px minmax(76px, 100px) minmax(76px, 100px) 68px;
     gap: 10px 8px;
   }
 
   body.viewport-fit .seat,
   body.viewport-fit .seat.side-top,
-  body.viewport-fit .seat.side-bottom {
+  body.viewport-fit .seat.side-bottom,
+  body.viewport-fit .seat.end-left,
+  body.viewport-fit .seat.end-right {
     min-height: 0;
     height: 100%;
   }

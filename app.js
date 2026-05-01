@@ -1,4 +1,6 @@
-const TOTAL_SEATS = 32;
+const LONG_SIDE_SEAT_COUNT = 17;
+const END_SIDE_SEAT_COUNT = 2;
+const TOTAL_SEATS = LONG_SIDE_SEAT_COUNT * 2 + END_SIDE_SEAT_COUNT * 2;
 const STORAGE_KEY = "derby-studio-seating-chart";
 const GROUP_COLORS = [
   "#D76C50",
@@ -13,15 +15,15 @@ const GROUP_COLORS = [
   "#D95D39",
 ];
 const SVG_LAYOUT = {
-  width: 1520,
-  height: 760,
-  tableX: 120,
-  tableY: 220,
-  tableWidth: 1280,
-  tableHeight: 260,
-  seatWidth: 140,
+  width: 2600,
+  height: 900,
+  tableX: 210,
+  tableY: 250,
+  tableWidth: 2180,
+  tableHeight: 300,
+  seatWidth: 118,
   seatHeight: 56,
-  columnStep: 86,
+  columnStep: 128,
 };
 
 const seatSummary = document.getElementById("seat-summary");
@@ -379,19 +381,29 @@ function escapeXml(value) {
 }
 
 function getPerimeterSeatOrder() {
-  return [...Array.from({ length: 16 }, (_, index) => index + 1), ...Array.from({ length: 16 }, (_, index) => 17 + index)];
+  return [
+    ...Array.from({ length: LONG_SIDE_SEAT_COUNT }, (_, index) => index + 1),
+    18,
+    19,
+    ...Array.from({ length: LONG_SIDE_SEAT_COUNT }, (_, index) => 20 + index),
+    37,
+    38,
+  ];
 }
 
 function areSeatsAdjacent(firstSeatNumber, secondSeatNumber) {
   if (!firstSeatNumber || !secondSeatNumber) {
     return false;
   }
-  const bothTop = firstSeatNumber <= 16 && secondSeatNumber <= 16;
-  const bothBottom = firstSeatNumber >= 17 && secondSeatNumber >= 17;
-  if (!bothTop && !bothBottom) {
+  const order = getPerimeterSeatOrder();
+  const firstIndex = order.indexOf(firstSeatNumber);
+  const secondIndex = order.indexOf(secondSeatNumber);
+  if (firstIndex === -1 || secondIndex === -1) {
     return false;
   }
-  return Math.abs(firstSeatNumber - secondSeatNumber) === 1;
+
+  const distance = Math.abs(firstIndex - secondIndex);
+  return distance === 1 || distance === order.length - 1;
 }
 
 function getRuleEvaluation(rule) {
@@ -630,20 +642,53 @@ function renderTable() {
 function buildSeatLayout() {
   const layouts = [];
 
-  for (let index = 0; index < 16; index += 1) {
+  for (let index = 0; index < LONG_SIDE_SEAT_COUNT; index += 1) {
     layouts.push({
       seatNumber: 1 + index,
       className: "side-top",
-      gridColumn: String(index + 1),
+      gridColumn: String(index + 2),
       gridRow: "1",
     });
-    layouts.push({
-      seatNumber: 17 + index,
-      className: "side-bottom",
-      gridColumn: String(index + 1),
+  }
+
+  layouts.push(
+    {
+      seatNumber: 18,
+      className: "end-right",
+      gridColumn: "19",
+      gridRow: "2",
+    },
+    {
+      seatNumber: 19,
+      className: "end-right",
+      gridColumn: "19",
       gridRow: "3",
+    },
+  );
+
+  for (let index = 0; index < LONG_SIDE_SEAT_COUNT; index += 1) {
+    layouts.push({
+      seatNumber: 20 + index,
+      className: "side-bottom",
+      gridColumn: String(18 - index),
+      gridRow: "4",
     });
   }
+
+  layouts.push(
+    {
+      seatNumber: 37,
+      className: "end-left",
+      gridColumn: "1",
+      gridRow: "3",
+    },
+    {
+      seatNumber: 38,
+      className: "end-left",
+      gridColumn: "1",
+      gridRow: "2",
+    },
+  );
 
   return layouts;
 }
@@ -1056,23 +1101,61 @@ function exportPlan() {
 
 function buildSvgSeatLayout() {
   const layouts = [];
-  for (let index = 0; index < 16; index += 1) {
+  for (let index = 0; index < LONG_SIDE_SEAT_COUNT; index += 1) {
     const x = SVG_LAYOUT.tableX + 2 + index * SVG_LAYOUT.columnStep;
     layouts.push({
       seatNumber: 1 + index,
       x,
-      y: 138,
+      y: 162,
       width: SVG_LAYOUT.seatWidth,
       height: SVG_LAYOUT.seatHeight,
     });
+  }
+
+  layouts.push(
+    {
+      seatNumber: 18,
+      x: SVG_LAYOUT.tableX + SVG_LAYOUT.tableWidth + 84,
+      y: SVG_LAYOUT.tableY + 40,
+      width: SVG_LAYOUT.seatWidth,
+      height: SVG_LAYOUT.seatHeight,
+    },
+    {
+      seatNumber: 19,
+      x: SVG_LAYOUT.tableX + SVG_LAYOUT.tableWidth + 84,
+      y: SVG_LAYOUT.tableY + SVG_LAYOUT.tableHeight - 96,
+      width: SVG_LAYOUT.seatWidth,
+      height: SVG_LAYOUT.seatHeight,
+    },
+  );
+
+  for (let index = 0; index < LONG_SIDE_SEAT_COUNT; index += 1) {
+    const x = SVG_LAYOUT.tableX + 2 + (LONG_SIDE_SEAT_COUNT - 1 - index) * SVG_LAYOUT.columnStep;
     layouts.push({
-      seatNumber: 17 + index,
+      seatNumber: 20 + index,
       x,
       y: SVG_LAYOUT.tableY + SVG_LAYOUT.tableHeight + 84,
       width: SVG_LAYOUT.seatWidth,
       height: SVG_LAYOUT.seatHeight,
     });
   }
+
+  layouts.push(
+    {
+      seatNumber: 37,
+      x: 84,
+      y: SVG_LAYOUT.tableY + SVG_LAYOUT.tableHeight - 96,
+      width: SVG_LAYOUT.seatWidth,
+      height: SVG_LAYOUT.seatHeight,
+    },
+    {
+      seatNumber: 38,
+      x: 84,
+      y: SVG_LAYOUT.tableY + 40,
+      width: SVG_LAYOUT.seatWidth,
+      height: SVG_LAYOUT.seatHeight,
+    },
+  );
 
   return layouts.sort((a, b) => a.seatNumber - b.seatNumber);
 }

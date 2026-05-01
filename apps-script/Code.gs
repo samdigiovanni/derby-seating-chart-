@@ -1,4 +1,4 @@
-const TOTAL_SEATS = 32;
+const TOTAL_SEATS = 38;
 const ASSET_BASE_URL = "https://samdigiovanni.github.io/derby-seating-chart-/";
 const SHEET_NAMES = {
   guests: "Guests",
@@ -17,10 +17,6 @@ function doGet() {
   return template
     .evaluate()
     .setTitle("Table Planner")
-    .addMetaTag(
-      "description",
-      "Shared Google Workspace seating planner for a 32-person table.",
-    )
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
@@ -80,6 +76,23 @@ function ensurePlannerSheets_(spreadsheet) {
       rows.push([index, "", false]);
     }
     seatsSheet.getRange(2, 1, rows.length, rows[0].length).setValues(rows);
+    return;
+  }
+
+  const existingSeatNumbers = readDataRows_(seatsSheet).map(function (row) {
+    return Number(row[0]);
+  });
+  const rowsToAppend = [];
+  for (var seatNumber = 1; seatNumber <= TOTAL_SEATS; seatNumber += 1) {
+    if (!existingSeatNumbers.includes(seatNumber)) {
+      rowsToAppend.push([seatNumber, "", false]);
+    }
+  }
+
+  if (rowsToAppend.length) {
+    seatsSheet
+      .getRange(seatsSheet.getLastRow() + 1, 1, rowsToAppend.length, rowsToAppend[0].length)
+      .setValues(rowsToAppend);
   }
 }
 
