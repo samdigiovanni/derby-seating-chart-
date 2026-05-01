@@ -608,8 +608,8 @@ function renderTable() {
         guestCard.draggable = !seat?.locked;
         guestCard.textContent = guest.name;
         guestCard.dataset.guestId = guest.id;
+        guestCard.title = guest.group ? `${guest.name} - ${guest.group}` : guest.name;
         if (guest.group) {
-          guestCard.title = `${guest.name} - ${guest.group}`;
           guestCard.style.cssText = getGuestDisplayStyles(guest);
         }
         if (!seat?.locked) {
@@ -618,8 +618,10 @@ function renderTable() {
 
         const editButton = document.createElement("button");
         editButton.type = "button";
-        editButton.textContent = "Edit";
+        editButton.className = "seat-edit-button";
+        editButton.textContent = "✎";
         editButton.setAttribute("aria-label", `Edit ${guest.name}`);
+        editButton.title = `Edit ${guest.name}`;
         editButton.addEventListener("click", (event) => {
           event.stopPropagation();
           startEditingGuest(guest.id);
