@@ -356,13 +356,6 @@ function escapeXml(value) {
     .replaceAll("'", "&apos;");
 }
 
-function truncateSeatLine(line, maxLength = 11) {
-  if (line.length <= maxLength) {
-    return line;
-  }
-  return `${line.slice(0, Math.max(1, maxLength - 1)).trim()}.`;
-}
-
 function splitSeatNameLines(name) {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   if (parts.length <= 1) {
@@ -388,20 +381,18 @@ function splitSeatNameLines(name) {
 }
 
 function getSeatNamePresentation(name) {
-  let lines = splitSeatNameLines(name);
-  let longestLine = Math.max(...lines.map((line) => line.length));
-
-  if (longestLine > 13) {
-    lines = lines.map((line) => truncateSeatLine(line, 13));
-    longestLine = Math.max(...lines.map((line) => line.length));
-  }
+  const lines = splitSeatNameLines(name);
+  const longestLine = Math.max(...lines.map((line) => line.length));
+  const totalLength = lines.join("").length;
 
   let sizeClass = "is-standard";
-  if (longestLine >= 12) {
+  if (longestLine >= 13 || totalLength >= 18) {
+    sizeClass = "is-nano";
+  } else if (longestLine >= 11 || totalLength >= 16) {
     sizeClass = "is-micro";
-  } else if (longestLine >= 10) {
+  } else if (longestLine >= 9 || totalLength >= 14) {
     sizeClass = "is-tight";
-  } else if (longestLine >= 8) {
+  } else if (longestLine >= 7 || totalLength >= 12) {
     sizeClass = "is-compact";
   }
 

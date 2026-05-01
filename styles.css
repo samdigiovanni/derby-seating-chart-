@@ -354,37 +354,40 @@ h2 {
 .seat-name {
   cursor: grab;
   font-weight: 600;
-  font-size: 0.82rem;
-  line-height: 1.15;
+  font-size: 0.76rem;
+  line-height: 1.08;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 0.08rem;
+  gap: 0.02rem;
   text-align: center;
   min-height: 2.3em;
-  padding: 12px 10px 10px;
+  padding: 10px 8px 9px;
 }
 
 .seat-name-line {
   display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .seat-name.is-compact {
-  font-size: 0.78rem;
+  font-size: 0.71rem;
 }
 
 .seat-name.is-tight {
-  font-size: 0.72rem;
-  line-height: 1.08;
+  font-size: 0.64rem;
+  line-height: 1.02;
 }
 
 .seat-name.is-micro {
-  font-size: 0.66rem;
-  line-height: 1.04;
+  font-size: 0.58rem;
+  line-height: 0.98;
+}
+
+.seat-name.is-nano {
+  font-size: 0.53rem;
+  line-height: 0.95;
 }
 
 .seat-name.locked-name {
