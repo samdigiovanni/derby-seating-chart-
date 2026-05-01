@@ -6,7 +6,7 @@
     <title>Table Planner</title>
     <meta
       name="description"
-      content="Arrange 38 guests around a long rectangular table with drag-and-drop seating, groups, locks, and relationship rules."
+      content="Arrange 38 guests around a long rectangular table with drag-and-drop seating and shared guest names."
     />
     <meta name="theme-color" content="#bb6c3f" />
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
@@ -68,9 +68,6 @@
               <h2>Drag guests into any seat</h2>
             </div>
             <div class="table-tools">
-              <button id="auto-arrange-button" class="ghost-button tool-button" type="button">
-                Auto-Arrange Groups
-              </button>
               <div class="seat-lock-controls">
                 <p id="selected-seat-summary" class="panel-meta">Select a seat to manage its lock.</p>
                 <button id="toggle-lock-button" class="ghost-button tool-button" type="button" disabled>
@@ -106,63 +103,20 @@
                 placeholder="Type a guest name"
                 autocomplete="off"
               />
-              <label class="sr-only" for="guest-group-input">Guest group</label>
-              <input
-                id="guest-group-input"
-                name="guest-group"
-                type="text"
-                maxlength="40"
-                placeholder="Group or party"
-                autocomplete="off"
-              />
               <button class="primary-button" type="submit">Add Guest</button>
             </form>
 
             <div class="bulk-entry">
               <label for="bulk-names-input">Paste multiple names</label>
-              <p class="bulk-hint">
-                Use <code>Name, Group</code> on each line if you want guests color-coded by party.
-              </p>
               <textarea
                 id="bulk-names-input"
                 rows="6"
-                placeholder="One name per line or Name, Group"
+                placeholder="One name per line"
               ></textarea>
               <button id="add-bulk-button" class="ghost-button" type="button">
                 Add Pasted Names
               </button>
             </div>
-
-            <div class="legend-panel">
-              <div class="legend-header">
-                <span>Groups</span>
-                <span id="legend-summary"></span>
-              </div>
-              <div id="group-legend" class="group-legend"></div>
-            </div>
-
-            <section class="rules-panel">
-              <div class="legend-header">
-                <span>Relationship Rules</span>
-                <span id="rule-summary"></span>
-              </div>
-
-              <form id="rule-form" class="rule-form">
-                <label class="sr-only" for="rule-guest-a">First guest</label>
-                <select id="rule-guest-a"></select>
-                <label class="sr-only" for="rule-type">Rule type</label>
-                <select id="rule-type">
-                  <option value="together">Seat together</option>
-                  <option value="apart">Keep apart</option>
-                </select>
-                <label class="sr-only" for="rule-guest-b">Second guest</label>
-                <select id="rule-guest-b"></select>
-                <button class="ghost-button" type="submit">Add Rule</button>
-              </form>
-
-              <div id="rule-status" class="rule-status"></div>
-              <div id="rule-list" class="rule-list"></div>
-            </section>
 
             <div
               id="unseated-dropzone"

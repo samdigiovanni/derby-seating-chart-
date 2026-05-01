@@ -29,23 +29,13 @@ const SVG_LAYOUT = {
 const seatSummary = document.getElementById("seat-summary");
 const selectedSeatSummary = document.getElementById("selected-seat-summary");
 const guestSummary = document.getElementById("guest-summary");
-const legendSummary = document.getElementById("legend-summary");
-const ruleSummary = document.getElementById("rule-summary");
 const storageStatus = document.getElementById("storage-status");
 const tableMap = document.getElementById("table-map");
 const guestList = document.getElementById("guest-list");
 const guestForm = document.getElementById("guest-form");
 const guestNameInput = document.getElementById("guest-name-input");
-const guestGroupInput = document.getElementById("guest-group-input");
 const bulkNamesInput = document.getElementById("bulk-names-input");
 const addBulkButton = document.getElementById("add-bulk-button");
-const groupLegend = document.getElementById("group-legend");
-const ruleForm = document.getElementById("rule-form");
-const ruleGuestA = document.getElementById("rule-guest-a");
-const ruleGuestB = document.getElementById("rule-guest-b");
-const ruleType = document.getElementById("rule-type");
-const ruleStatus = document.getElementById("rule-status");
-const ruleList = document.getElementById("rule-list");
 const unseatedDropzone = document.getElementById("unseated-dropzone");
 const clearSeatsButton = document.getElementById("clear-seats-button");
 const resetAllButton = document.getElementById("reset-all-button");
@@ -53,7 +43,6 @@ const undoButton = document.getElementById("undo-button");
 const redoButton = document.getElementById("redo-button");
 const exportButton = document.getElementById("export-button");
 const exportSvgButton = document.getElementById("export-svg-button");
-const autoArrangeButton = document.getElementById("auto-arrange-button");
 const importFileInput = document.getElementById("import-file-input");
 const printButton = document.getElementById("print-button");
 const toggleLockButton = document.getElementById("toggle-lock-button");
@@ -141,7 +130,7 @@ function normalizeState(rawState) {
     .map((guest) => ({
       id: guest.id,
       name: guest.name.trim(),
-      group: typeof guest.group === "string" ? guest.group.trim() : "",
+      group: "",
     }))
     .filter((guest) => guest.name);
 
@@ -157,24 +146,7 @@ function normalizeState(rawState) {
     };
   });
 
-  const rules = Array.isArray(rawState.rules)
-    ? rawState.rules
-        .filter(
-          (rule) =>
-            rule &&
-            rule.id &&
-            guestIds.has(rule.guestAId) &&
-            guestIds.has(rule.guestBId) &&
-            rule.guestAId !== rule.guestBId &&
-            (rule.type === "together" || rule.type === "apart"),
-        )
-        .map((rule) => ({
-          id: rule.id,
-          guestAId: rule.guestAId,
-          guestBId: rule.guestBId,
-          type: rule.type,
-        }))
-    : [];
+  const rules = [];
 
   return { guests, seats, rules };
 }
@@ -368,12 +340,7 @@ function getGroupColor(group) {
 }
 
 function getGuestDisplayStyles(guest) {
-  const color = getGroupColor(guest.group);
-  if (!color) {
-    return "";
-  }
-
-  return `background: color-mix(in srgb, ${color} 20%, white); border-color: color-mix(in srgb, ${color} 38%, rgba(94, 71, 44, 0.2));`;
+  return "";
 }
 
 function escapeXml(value) {
@@ -458,32 +425,8 @@ function getRuleEvaluation(rule) {
       };
 }
 
-function getRuleEvaluations() {
-  return state.rules.map((rule) => ({
-    rule,
-    evaluation: getRuleEvaluation(rule),
-  }));
-}
-
 function getConflictedSeatNumbers() {
-  const conflictedSeats = new Set();
-  getRuleEvaluations().forEach(({ evaluation }) => {
-    if (!evaluation.ok && Array.isArray(evaluation.seatNumbers)) {
-      evaluation.seatNumbers.forEach((seatNumber) => conflictedSeats.add(seatNumber));
-    }
-  });
-  return conflictedSeats;
-}
-
-function populateRuleGuestOptions() {
-  const options = state.guests
-    .slice()
-    .sort((a, b) => a.name.localeCompare(b.name))
-    .map((guest) => `<option value="${guest.id}">${escapeXml(guest.name)}</option>`)
-    .join("");
-
-  ruleGuestA.innerHTML = `<option value="">Select guest</option>${options}`;
-  ruleGuestB.innerHTML = `<option value="">Select guest</option>${options}`;
+  return new Set();
 }
 
 function createGuestEditor(guest) {
@@ -495,12 +438,6 @@ function createGuestEditor(guest) {
   nameInput.maxLength = 60;
   nameInput.value = guest.name;
   nameInput.placeholder = "Guest name";
-
-  const groupInput = document.createElement("input");
-  groupInput.type = "text";
-  groupInput.maxLength = 40;
-  groupInput.value = guest.group;
-  groupInput.placeholder = "Group or party";
 
   const actions = document.createElement("div");
   actions.className = "inline-editor-actions";
@@ -515,11 +452,11 @@ function createGuestEditor(guest) {
   saveButton.textContent = "Save";
 
   actions.append(cancelButton, saveButton);
-  form.append(nameInput, groupInput, actions);
+  form.append(nameInput, actions);
 
   form.addEventListener("submit", (event) => {
     event.preventDefault();
-    updateGuest(guest.id, nameInput.value, groupInput.value);
+    updateGuest(guest.id, nameInput.value, "");
   });
 
   queueMicrotask(() => nameInput.focus());
@@ -527,11 +464,8 @@ function createGuestEditor(guest) {
 }
 
 function render() {
-  populateRuleGuestOptions();
   renderTable();
   renderGuestList();
-  renderLegend();
-  renderRules();
   updateSummaries();
   updateSeatLockControls();
   updateHistoryButtons();
@@ -583,12 +517,6 @@ function renderTable() {
       selectedSeatNumber = selectedSeatNumber === seatNumber ? null : seatNumber;
       render();
     });
-
-    if (guest?.group) {
-      const groupColor = getGroupColor(guest.group);
-      seatElement.style.background = `color-mix(in srgb, ${groupColor} 26%, white)`;
-      seatElement.style.borderColor = `color-mix(in srgb, ${groupColor} 45%, rgba(141, 75, 40, 0.3))`;
-    }
 
     setupSeatDropTarget(seatElement, seatNumber);
 
@@ -720,7 +648,6 @@ function renderGuestList() {
       guestChip.className = "guest-chip";
       guestChip.draggable = true;
       guestChip.dataset.guestId = guest.id;
-      guestChip.style.cssText = getGuestDisplayStyles(guest);
       setupDraggableGuest(guestChip, guest.id);
 
       const guestText = document.createElement("div");
@@ -729,21 +656,6 @@ function renderGuestList() {
       const guestName = document.createElement("strong");
       guestName.textContent = guest.name;
       guestText.appendChild(guestName);
-
-      if (guest.group) {
-        const guestGroupLabel = document.createElement("span");
-        guestGroupLabel.className = "guest-group-label";
-
-        const groupDot = document.createElement("span");
-        groupDot.className = "group-dot";
-        groupDot.style.background = getGroupColor(guest.group);
-
-        const groupName = document.createElement("span");
-        groupName.textContent = guest.group;
-
-        guestGroupLabel.append(groupDot, groupName);
-        guestText.appendChild(guestGroupLabel);
-      }
 
       const actions = document.createElement("div");
       actions.className = "guest-chip-actions";
@@ -764,108 +676,6 @@ function renderGuestList() {
       guestChip.append(guestText, actions);
       guestList.appendChild(guestChip);
     });
-}
-
-function renderLegend() {
-  groupLegend.innerHTML = "";
-  const groups = getGroups();
-  legendSummary.textContent = groups.length
-    ? `${groups.length} ${groups.length === 1 ? "group" : "groups"}`
-    : "No groups yet";
-
-  if (!groups.length) {
-    const emptyLegend = document.createElement("span");
-    emptyLegend.className = "panel-meta";
-    emptyLegend.textContent = "Add a group name when creating guests to organize parties visually.";
-    groupLegend.appendChild(emptyLegend);
-    return;
-  }
-
-  groups.forEach((group) => {
-    const guestCount = state.guests.filter((guest) => guest.group === group).length;
-    const legendChip = document.createElement("div");
-    legendChip.className = "legend-chip";
-
-    const swatch = document.createElement("span");
-    swatch.className = "legend-swatch";
-    swatch.style.background = getGroupColor(group);
-
-    const label = document.createElement("span");
-    label.textContent = `${group} (${guestCount})`;
-
-    legendChip.append(swatch, label);
-    groupLegend.appendChild(legendChip);
-  });
-}
-
-function renderRules() {
-  ruleStatus.innerHTML = "";
-  ruleList.innerHTML = "";
-
-  const evaluations = getRuleEvaluations();
-  const conflicts = evaluations.filter(({ evaluation }) => !evaluation.ok);
-  ruleSummary.textContent = state.rules.length
-    ? `${state.rules.length} rules, ${conflicts.length} conflicts`
-    : "No rules yet";
-
-  if (!state.rules.length) {
-    const note = document.createElement("div");
-    note.className = "rule-note";
-    note.textContent = "Add rules to keep key pairs together or apart while you arrange the table.";
-    ruleStatus.appendChild(note);
-    return;
-  }
-
-  if (conflicts.length) {
-    conflicts.forEach(({ evaluation }) => {
-      const note = document.createElement("div");
-      note.className = "rule-note conflict";
-      note.textContent = evaluation.message;
-      ruleStatus.appendChild(note);
-    });
-  } else {
-    const note = document.createElement("div");
-    note.className = "rule-note success";
-    note.textContent = "All active relationship rules are currently satisfied.";
-    ruleStatus.appendChild(note);
-  }
-
-  evaluations.forEach(({ rule, evaluation }) => {
-    const guestA = getGuestById(rule.guestAId);
-    const guestB = getGuestById(rule.guestBId);
-    if (!guestA || !guestB) {
-      return;
-    }
-
-    const chip = document.createElement("div");
-    chip.className = `rule-chip ${evaluation.ok ? "" : "conflict"}`.trim();
-
-    const text = document.createElement("div");
-    text.className = "rule-text";
-
-    const title = document.createElement("div");
-    title.className = "rule-title";
-    title.textContent =
-      rule.type === "together"
-        ? `${guestA.name} + ${guestB.name}`
-        : `${guestA.name} x ${guestB.name}`;
-
-    const meta = document.createElement("div");
-    meta.className = "rule-meta";
-    meta.textContent =
-      rule.type === "together"
-        ? `Seat together. ${evaluation.message}`
-        : `Keep apart. ${evaluation.message}`;
-
-    const removeButton = document.createElement("button");
-    removeButton.type = "button";
-    removeButton.textContent = "Remove";
-    removeButton.addEventListener("click", () => removeRule(rule.id));
-
-    text.append(title, meta);
-    chip.append(text, removeButton);
-    ruleList.appendChild(chip);
-  });
 }
 
 function updateSummaries() {
@@ -1037,21 +847,19 @@ function removeGuest(guestId) {
 
 function addGuest(name, group = "") {
   const trimmedName = name.trim();
-  const trimmedGroup = group.trim();
   if (!trimmedName) {
     return;
   }
 
   commitStateChange(() => {
-    state.guests.push(createGuest(trimmedName, trimmedGroup));
+    state.guests.push(createGuest(trimmedName, ""));
   });
 }
 
 function parseBulkLine(line) {
-  const [namePart, ...groupParts] = line.split(",");
   return {
-    name: (namePart ?? "").trim(),
-    group: groupParts.join(",").trim(),
+    name: line.trim(),
+    group: "",
   };
 }
 
@@ -1187,13 +995,12 @@ function buildSeatingSvg() {
     .map((layout) => {
       const seat = getSeatByNumber(layout.seatNumber);
       const guest = seat?.guestId ? getGuestById(seat.guestId) : null;
-      const groupColor = guest?.group ? getGroupColor(guest.group) : null;
-      const seatFill = groupColor ? `${groupColor}33` : "#fcf4ea";
+      const seatFill = "#fcf4ea";
       const seatStroke = conflictedSeats.has(layout.seatNumber)
         ? "#bd553a"
-        : groupColor || "#d6c8b9";
+        : "#d6c8b9";
       const guestText = guest ? escapeXml(guest.name) : "Open seat";
-      const groupText = guest?.group ? escapeXml(guest.group) : seat?.locked ? "Locked" : "";
+      const groupText = seat?.locked ? "Locked" : "";
       const lockText = seat?.locked ? "🔒" : "";
 
       return `
@@ -1304,17 +1111,9 @@ function importPlan(file) {
 
 guestForm.addEventListener("submit", (event) => {
   event.preventDefault();
-  addGuest(guestNameInput.value, guestGroupInput.value);
+  addGuest(guestNameInput.value, "");
   guestNameInput.value = "";
-  guestGroupInput.value = "";
   guestNameInput.focus();
-});
-
-ruleForm.addEventListener("submit", (event) => {
-  event.preventDefault();
-  addRule(ruleGuestA.value, ruleGuestB.value, ruleType.value);
-  ruleGuestA.value = "";
-  ruleGuestB.value = "";
 });
 
 addBulkButton.addEventListener("click", () => {
@@ -1394,7 +1193,6 @@ redoButton.addEventListener("click", () => {
 
 exportButton.addEventListener("click", exportPlan);
 exportSvgButton.addEventListener("click", exportSvg);
-autoArrangeButton.addEventListener("click", autoArrangeByGroup);
 
 importFileInput.addEventListener("change", (event) => {
   const [file] = event.target.files ?? [];
