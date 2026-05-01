@@ -357,13 +357,34 @@ h2 {
   font-size: 0.82rem;
   line-height: 1.15;
   overflow: hidden;
-  white-space: normal;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.08rem;
   text-align: center;
   min-height: 2.3em;
   padding: 12px 10px 10px;
+}
+
+.seat-name-line {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.seat-name.is-compact {
+  font-size: 0.78rem;
+}
+
+.seat-name.is-tight {
+  font-size: 0.72rem;
+  line-height: 1.08;
+}
+
+.seat-name.is-micro {
+  font-size: 0.66rem;
+  line-height: 1.04;
 }
 
 .seat-name.locked-name {

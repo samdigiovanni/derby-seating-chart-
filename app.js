@@ -356,6 +356,58 @@ function escapeXml(value) {
     .replaceAll("'", "&apos;");
 }
 
+function truncateSeatLine(line, maxLength = 11) {
+  if (line.length <= maxLength) {
+    return line;
+  }
+  return `${line.slice(0, Math.max(1, maxLength - 1)).trim()}.`;
+}
+
+function splitSeatNameLines(name) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length <= 1) {
+    return parts.length ? [parts[0]] : [name];
+  }
+  if (parts.length === 2) {
+    return parts;
+  }
+
+  let bestSplit = 1;
+  let bestScore = Number.POSITIVE_INFINITY;
+  for (let index = 1; index < parts.length; index += 1) {
+    const left = parts.slice(0, index).join(" ");
+    const right = parts.slice(index).join(" ");
+    const score = Math.max(left.length, right.length);
+    if (score < bestScore) {
+      bestScore = score;
+      bestSplit = index;
+    }
+  }
+
+  return [parts.slice(0, bestSplit).join(" "), parts.slice(bestSplit).join(" ")];
+}
+
+function getSeatNamePresentation(name) {
+  let lines = splitSeatNameLines(name);
+  let longestLine = Math.max(...lines.map((line) => line.length));
+
+  if (longestLine > 13) {
+    lines = lines.map((line) => truncateSeatLine(line, 13));
+    longestLine = Math.max(...lines.map((line) => line.length));
+  }
+
+  let sizeClass = "is-standard";
+  if (longestLine >= 12) {
+    sizeClass = "is-micro";
+  } else if (longestLine >= 10) {
+    sizeClass = "is-tight";
+  } else if (longestLine >= 8) {
+    sizeClass = "is-compact";
+  }
+
+  return { lines, sizeClass };
+}
+
 function getPerimeterSeatOrder() {
   return [
     ...TOP_SEAT_NUMBERS,
@@ -530,11 +582,19 @@ function renderTable() {
         seatCard.className = "seat-card";
 
         const guestCard = document.createElement("div");
-        guestCard.className = `seat-name ${seat?.locked ? "locked-name" : ""}`.trim();
+        const seatNamePresentation = getSeatNamePresentation(guest.name);
+        guestCard.className = `seat-name ${seatNamePresentation.sizeClass} ${
+          seat?.locked ? "locked-name" : ""
+        }`.trim();
         guestCard.draggable = !seat?.locked;
-        guestCard.textContent = guest.name;
         guestCard.dataset.guestId = guest.id;
         guestCard.title = guest.group ? `${guest.name} - ${guest.group}` : guest.name;
+        seatNamePresentation.lines.forEach((line) => {
+          const lineElement = document.createElement("span");
+          lineElement.className = "seat-name-line";
+          lineElement.textContent = line;
+          guestCard.appendChild(lineElement);
+        });
         if (guest.group) {
           guestCard.style.cssText = getGuestDisplayStyles(guest);
         }
