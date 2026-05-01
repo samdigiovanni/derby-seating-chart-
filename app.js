@@ -13,15 +13,15 @@ const GROUP_COLORS = [
   "#D95D39",
 ];
 const SVG_LAYOUT = {
-  width: 1000,
-  height: 1320,
-  tableX: 250,
-  tableY: 110,
-  tableWidth: 500,
-  tableHeight: 1100,
-  seatWidth: 220,
+  width: 1520,
+  height: 760,
+  tableX: 120,
+  tableY: 220,
+  tableWidth: 1280,
+  tableHeight: 260,
+  seatWidth: 140,
   seatHeight: 56,
-  rowStep: 64,
+  columnStep: 86,
 };
 
 const seatSummary = document.getElementById("seat-summary");
@@ -386,9 +386,9 @@ function areSeatsAdjacent(firstSeatNumber, secondSeatNumber) {
   if (!firstSeatNumber || !secondSeatNumber) {
     return false;
   }
-  const bothLeft = firstSeatNumber <= 16 && secondSeatNumber <= 16;
-  const bothRight = firstSeatNumber >= 17 && secondSeatNumber >= 17;
-  if (!bothLeft && !bothRight) {
+  const bothTop = firstSeatNumber <= 16 && secondSeatNumber <= 16;
+  const bothBottom = firstSeatNumber >= 17 && secondSeatNumber >= 17;
+  if (!bothTop && !bothBottom) {
     return false;
   }
   return Math.abs(firstSeatNumber - secondSeatNumber) === 1;
@@ -633,15 +633,15 @@ function buildSeatLayout() {
   for (let index = 0; index < 16; index += 1) {
     layouts.push({
       seatNumber: 1 + index,
-      className: "side-left",
-      gridColumn: "1",
-      gridRow: String(index + 1),
+      className: "side-top",
+      gridColumn: String(index + 1),
+      gridRow: "1",
     });
     layouts.push({
       seatNumber: 17 + index,
-      className: "side-right",
-      gridColumn: "3",
-      gridRow: String(index + 1),
+      className: "side-bottom",
+      gridColumn: String(index + 1),
+      gridRow: "3",
     });
   }
 
@@ -1057,18 +1057,18 @@ function exportPlan() {
 function buildSvgSeatLayout() {
   const layouts = [];
   for (let index = 0; index < 16; index += 1) {
-    const y = SVG_LAYOUT.tableY + 16 + index * SVG_LAYOUT.rowStep;
+    const x = SVG_LAYOUT.tableX + 2 + index * SVG_LAYOUT.columnStep;
     layouts.push({
       seatNumber: 1 + index,
-      x: 42,
-      y,
+      x,
+      y: 138,
       width: SVG_LAYOUT.seatWidth,
       height: SVG_LAYOUT.seatHeight,
     });
     layouts.push({
       seatNumber: 17 + index,
-      x: SVG_LAYOUT.width - 42 - SVG_LAYOUT.seatWidth,
-      y,
+      x,
+      y: SVG_LAYOUT.tableY + SVG_LAYOUT.tableHeight + 84,
       width: SVG_LAYOUT.seatWidth,
       height: SVG_LAYOUT.seatHeight,
     });
