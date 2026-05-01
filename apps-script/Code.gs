@@ -1,4 +1,4 @@
-const TOTAL_SEATS = 38;
+const TOTAL_SEATS = 40;
 const ASSET_BASE_URL = "https://samdigiovanni.github.io/derby-seating-chart-/";
 const SHEET_NAMES = {
   guests: "Guests",

@@ -235,7 +235,7 @@ h2 {
   min-width: 0;
   width: 100%;
   display: grid;
-  grid-template-columns: 78px repeat(17, minmax(0, 1fr)) 78px;
+  grid-template-columns: 78px repeat(18, minmax(0, 1fr)) 78px;
   grid-template-rows: 88px minmax(84px, 112px) minmax(84px, 112px) 88px;
   gap: 12px 10px;
   align-items: center;
@@ -243,7 +243,7 @@ h2 {
 }
 
 .table-surface {
-  grid-column: 2 / 19;
+  grid-column: 2 / 20;
   grid-row: 2 / 4;
   background: var(--table-top);
   border-radius: 44px;
@@ -561,7 +561,7 @@ h2 {
   }
 
   .table-map {
-    min-width: 1380px;
+    min-width: 1460px;
   }
 }
 
